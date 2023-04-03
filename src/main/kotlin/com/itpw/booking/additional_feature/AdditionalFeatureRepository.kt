@@ -4,4 +4,5 @@ import org.springframework.data.repository.CrudRepository
 
 interface AdditionalFeatureRepository: CrudRepository<AdditionalFeature, Long> {
     fun findByTitleIgnoreCase(title: String): AdditionalFeature?
+    fun findByIdIn(ids: List<Long>): Set<AdditionalFeature>
 }

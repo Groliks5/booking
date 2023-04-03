@@ -61,6 +61,10 @@ data class CreateNoticeRequest(
     val selectedConditions: List<Long>,
     @JsonProperty("selected_additional_features")
     val selectedAdditionalFeatures: List<Long>,
+    @JsonProperty("metro_id")
+    val metroId: Long?,
+    @JsonProperty("duration_to_metro")
+    val metroDuration: Int?
 )
 
 data class NoticeImageRequest(
@@ -114,7 +118,9 @@ data class NoticeResponse(
     @JsonProperty("selected_additional_features")
     val selectedAdditionalFeatures: List<Long>,
     @JsonProperty("metro_station")
-    val metroStation: String?
+    val metroStation: String?,
+    @JsonProperty("duration_to_metro")
+    val metroDuration: Int?
 ) {
     constructor(notice: Notice): this(
         id = notice.id,
@@ -135,7 +141,8 @@ data class NoticeResponse(
         prePayment = notice.prePayment,
         selectedConditions = notice.selectedConditions.map { it.id },
         selectedAdditionalFeatures = notice.selectedAdditionalFeatures.map { it.id },
-        metroStation = notice.metro?.title
+        metroStation = notice.metro?.title,
+        metroDuration = notice.durationToMetro
     )
 }
 
@@ -179,7 +186,9 @@ data class NoticeViewResponse(
     @JsonProperty("user")
     val user: UserShortInfoResponse,
     @JsonProperty("metro_station")
-    val metroStation: String?
+    val metroStation: String?,
+    @JsonProperty("duration_to_metro")
+    val metroDuration: Int?
 ) {
     constructor(notice: Notice): this(
         id = notice.id,
@@ -201,7 +210,8 @@ data class NoticeViewResponse(
         selectedConditions = notice.selectedConditions.map { ConditionResponse(it) },
         selectedAdditionalFeatures = notice.selectedAdditionalFeatures.map { AdditionalFeatureResponse(it) },
         user = UserShortInfoResponse(notice.creator),
-        metroStation = notice.metro?.title
+        metroStation = notice.metro?.title,
+        metroDuration = notice.durationToMetro
     )
 }
 
@@ -225,7 +235,9 @@ data class ShortNoticeViewResponse(
     @JsonProperty("user")
     val user: UserShortInfoResponse,
     @JsonProperty("metro_station")
-    val metroStation: String?
+    val metroStation: String?,
+    @JsonProperty("duration_to_metro")
+    val metroDuration: Int?
 ) {
     constructor(notice: Notice, period: NoticePeriod): this(
         id = notice.id,
@@ -237,7 +249,8 @@ data class ShortNoticeViewResponse(
         latitude = notice.latitude,
         images = notice.images.map { it.href },
         user = UserShortInfoResponse(notice.creator),
-        metroStation = notice.metro?.title
+        metroStation = notice.metro?.title,
+        metroDuration = notice.durationToMetro
     )
 }
 
@@ -265,7 +278,9 @@ data class ShortNoticeResponse(
     @JsonProperty("price_per_night")
     val pricePerNight: Double?,
     @JsonProperty("metro_station")
-    val metroStation: String?
+    val metroStation: String?,
+    @JsonProperty("duration_to_metro")
+    val metroDuration: Int?
 ) {
     constructor(notice: Notice): this(
         id = notice.id,
@@ -279,7 +294,8 @@ data class ShortNoticeResponse(
         latitude = notice.latitude,
         images = notice.images.map { it.href },
         user = UserShortInfoResponse(notice.creator),
-        metroStation = notice.metro?.title
+        metroStation = notice.metro?.title,
+        metroDuration = notice.durationToMetro
     )
 }
 

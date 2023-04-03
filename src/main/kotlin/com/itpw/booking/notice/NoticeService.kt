@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.RequestParam
+import java.util.logging.Logger
 
 @Service
 class NoticeService @Autowired constructor(
@@ -85,6 +86,7 @@ class NoticeService @Autowired constructor(
             squareTo,
             conditions,
             metroStations,
+            getNoticeIdsWithFeaturesAndConditions(additionalFeatures, conditions),
             page,
             pageSize
         )
@@ -120,8 +122,30 @@ class NoticeService @Autowired constructor(
             squareFrom,
             squareTo,
             conditions,
-            metroStations
+            metroStations,
+            getNoticeIdsWithFeaturesAndConditions(additionalFeatures, conditions)
         )
+    }
+
+    private fun getNoticeIdsWithFeaturesAndConditions(additionalFeatures: List<Long>?, conditions: List<Long>?): List<Long>? {
+        if (additionalFeatures == null && conditions == null) return null
+        val features = additionalFeatures?.let {
+            val ids = additionalFeatureRepository.findByIdIn(it).map { it.notices.map { it.id }.toSet() }
+            if (ids.isNotEmpty()) {
+                ids.fold(ids.first()) { acc, value -> acc.intersect(value) }
+            } else {
+                setOf()
+            }
+        } ?: setOf()
+        val conds = conditions?.let {
+            val ids = conditionRepository.findByIdIn(it).map { it.notices.map { it.id }.toSet() }
+            if (ids.isNotEmpty()) {
+                ids.fold(ids.first()) { acc, value -> acc.intersect(value) }
+            } else {
+                setOf()
+            }
+        } ?: setOf()
+        return (features + conds).distinct()
     }
 
     fun getNotices(ids: List<Long>): List<Notice> {
@@ -132,6 +156,7 @@ class NoticeService @Autowired constructor(
     fun createNotice(userId: Long, request: CreateNoticeRequest): Notice {
         val user =
             userRepository.findByIdOrNull(userId) ?: throw NotFoundException(translator.toLocale("user_not_found"))
+        val metro = request.metroId?.let { metroStationService.getMetro(request.metroId) }
         val newNotice = noticeRepository.save(
             Notice(
                 title = request.title,
@@ -152,7 +177,8 @@ class NoticeService @Autowired constructor(
                 pricePerHour = request.pricePerHour,
                 roomsCount = request.roomsCount,
                 square = request.square,
-                metro = metroStationService.getMetroStation(request.longitude, request.latitude),
+                metro = metro,
+                durationToMetro = request.metroDuration
             )
         )
         val images = noticeImageRepository.saveAll(
@@ -189,9 +215,8 @@ class NoticeService @Autowired constructor(
         notice.pricePerHour = request.pricePerHour
         notice.roomsCount = request.roomsCount
         notice.square = request.square
-        if (!notice.longitude.equalsDelta(request.longitude) || !notice.latitude.equalsDelta(request.latitude)) {
-            notice.metro = metroStationService.getMetroStation(request.longitude, request.latitude)
-        }
+        notice.metro = request.metroId?.let { metroStationService.getMetro(request.metroId) }
+        notice.durationToMetro = request.metroDuration
         val oldImages = notice.images.map { it.href }
         val imagesForDelete = oldImages.filterNot { oldImage -> request.images.any { it.href == oldImage } }
         val images = request.images.sortedBy {
@@ -226,6 +251,14 @@ class NoticeService @Autowired constructor(
             filesUploadService.deleteFile(it.href)
         }
         noticeRepository.delete(notice)
+    }
+
+    fun normalizeSquare() {
+        val notices = noticeRepository.findAll().toList()
+        notices.forEach {
+            it.square = it.square?.toInt()?.toDouble()
+        }
+        noticeRepository.saveAll(notices)
     }
 
     fun findMetro(count: Int): Int {

@@ -1,5 +1,6 @@
 package com.itpw.booking.additional_feature
 
+import com.itpw.booking.notice.Notice
 import jakarta.persistence.*
 
 @Entity
@@ -13,4 +14,6 @@ class AdditionalFeature(
     )
     val id: Long = -1L,
     var title: String,
+    @ManyToMany(mappedBy = "selectedAdditionalFeatures")
+    val notices: List<Notice> = listOf()
 )

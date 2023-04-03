@@ -53,7 +53,7 @@ class UserService @Autowired constructor(
         val user = getUser(userId)
         user.name = request.name
         user.email = request.email
-        user.phone = request.phone
+        user.phone = request.phone.filter { it.isDigit() }
         user.whatsApp = request.whatsApp
         user.viber = request.viber
         user.telegram = request.telegram

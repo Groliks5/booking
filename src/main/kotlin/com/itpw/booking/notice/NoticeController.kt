@@ -105,6 +105,12 @@ class NoticeController @Autowired constructor(
                 }
                 put("square_from", squareFrom.toString())
                 put("square_to", squareTo.toString())
+                if (metroStations != null) {
+                    put("metro_stations", metroStations.joinToString("&metro_stations="))
+                }
+                if (conditions != null) {
+                    put("conditions", conditions.joinToString("&conditions="))
+                }
             },
             page = notices,
             mapper = {

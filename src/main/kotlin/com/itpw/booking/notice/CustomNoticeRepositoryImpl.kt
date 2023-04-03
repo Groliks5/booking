@@ -6,6 +6,7 @@ import jakarta.persistence.Query
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import java.util.logging.Logger
 
 class CustomNoticeRepositoryImpl : CustomNoticeRepository {
     @PersistenceContext
@@ -26,6 +27,7 @@ class CustomNoticeRepositoryImpl : CustomNoticeRepository {
         squareTo: Int?,
         conditions: List<Long>?,
         metroStations: List<Long>?,
+        ids: List<Long>?,
         page: Int,
         pageSize: Int
     ): Page<Notice> {
@@ -45,7 +47,8 @@ class CustomNoticeRepositoryImpl : CustomNoticeRepository {
             squareFrom,
             squareTo,
             conditions,
-            metroStations
+            metroStations,
+            ids
         )
             .setFirstResult(page * pageSize)
             .setMaxResults(pageSize)
@@ -65,7 +68,8 @@ class CustomNoticeRepositoryImpl : CustomNoticeRepository {
             squareFrom,
             squareTo,
             conditions,
-            metroStations
+            metroStations,
+            ids
         )
             .singleResult as Long
         return PageImpl<Notice>(results, pageable, count)
@@ -85,7 +89,8 @@ class CustomNoticeRepositoryImpl : CustomNoticeRepository {
         squareFrom: Int?,
         squareTo: Int?,
         conditions: List<Long>?,
-        metroStations: List<Long>?
+        metroStations: List<Long>?,
+        ids: List<Long>?,
     ): Long {
         return createFindNoticesQuery(
             true,
@@ -102,7 +107,8 @@ class CustomNoticeRepositoryImpl : CustomNoticeRepository {
             squareFrom,
             squareTo,
             conditions,
-            metroStations
+            metroStations,
+            ids
         )
             .singleResult as Long
     }
@@ -123,6 +129,7 @@ class CustomNoticeRepositoryImpl : CustomNoticeRepository {
         squareTo: Int?,
         conditions: List<Long>?,
         metroStations: List<Long>?,
+        ids: List<Long>?,
     ): Query {
         val queryStart = if (isCountQuery) "SELECT count(n.id)" else ""
         val priceType = when (noticePeriod) {
@@ -139,19 +146,20 @@ class CustomNoticeRepositoryImpl : CustomNoticeRepository {
         val squareToCondition = if (squareTo == null) "" else " AND n.square <= :square_to"
         val conditionsJoin = if (conditions == null) "" else " JOIN n.selectedConditions sc"
         val conditionsCondition = if (conditions == null) "" else " AND sc.id IN :selected_conditions"
+        val idsCondition = if (ids == null) "" else " AND n.id IN :ids" // Временный костыль для того, чтобы работал запрос на получение объявлений с фильтрами additional features и conditions как их пересечение
         val metroStationJoin = if (metroStations == null) "" else " JOIN n.metro m"
         val metroStationCondition = if (metroStations == null) "" else " AND m.id IN :metro_stations"
         val ordering = if (isCountQuery) {
             ""
         } else {
             when (ordering) {
-                NoticeOrdering.DEFAULT -> " ORDER BY n.title ASC"
-                NoticeOrdering.CHIP_FIRST -> " ORDER BY n.$priceType ASC"
-                NoticeOrdering.EXPENSIVE_FIRST -> " ORDER BY n.$priceType DESC"
+                NoticeOrdering.DEFAULT -> " ORDER BY n.title ASC, n.id ASC"
+                NoticeOrdering.CHIP_FIRST -> " ORDER BY n.$priceType ASC, n.id ASC"
+                NoticeOrdering.EXPENSIVE_FIRST -> " ORDER BY n.$priceType DESC, n.id ASC"
             }
         }
         val query =
-            entityManager.createQuery("$queryStart FROM Notice n$additionalFeaturesJoin$conditionsJoin$metroStationJoin WHERE n.$priceType BETWEEN :price_from AND :price_to AND floor BETWEEN :floor_from AND :floor_to$roomsCountCondition$withoutDepositCondition$withoutPrePaymentCondition$additionalFeaturesCondition$squareFromCondition$squareToCondition$conditionsCondition$metroStationCondition$ordering")
+            entityManager.createQuery("$queryStart FROM Notice n$metroStationJoin WHERE n.$priceType BETWEEN :price_from AND :price_to AND floor BETWEEN :floor_from AND :floor_to$roomsCountCondition$withoutDepositCondition$withoutPrePaymentCondition$squareFromCondition$squareToCondition$metroStationCondition$idsCondition$ordering")
                 .setParameter("price_from", priceFrom)
                 .setParameter("price_to", priceTo)
                 .setParameter("floor_from", floorFrom)
@@ -165,17 +173,14 @@ class CustomNoticeRepositoryImpl : CustomNoticeRepository {
         if (isWithoutPrePayment) {
             query.setParameter("pre_payment", ConditionType.NO)
         }
-        if (additionalFeatures != null) {
-            query.setParameter("additional_features", additionalFeatures)
-        }
         if (squareFrom != null) {
             query.setParameter("square_from", squareFrom)
         }
         if (squareTo != null) {
             query.setParameter("square_to", squareTo)
         }
-        if (conditions != null) {
-            query.setParameter("selected_conditions", conditions)
+        if (ids != null) {
+            query.setParameter("ids", ids)
         }
         if (metroStations != null) {
             query.setParameter("metro_stations", metroStations)

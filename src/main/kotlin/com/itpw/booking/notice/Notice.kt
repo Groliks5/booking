@@ -6,6 +6,7 @@ import com.itpw.booking.metro_station.MetroStation
 import com.itpw.booking.notice_image.NoticeImage
 import com.itpw.booking.user.User
 import jakarta.persistence.*
+import java.util.Calendar
 
 @Entity
 @Table(
@@ -36,6 +37,7 @@ class Notice (
     var prePayment: ConditionType?,
     @ManyToOne
     var metro: MetroStation?,
+    var durationToMetro: Int?,
     @ManyToMany
     @JoinTable(
         name = "selected_conditions",
@@ -51,7 +53,9 @@ class Notice (
     )
     var selectedAdditionalFeatures: MutableList<AdditionalFeature> = mutableListOf(),
     @ManyToOne
-    val creator: User
+    val creator: User,
+    @Temporal(TemporalType.TIMESTAMP)
+    val created: Calendar = Calendar.getInstance()
 ) {
     fun getPriceForPeriod(period: NoticePeriod): Double {
         return when(period) {

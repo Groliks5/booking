@@ -18,6 +18,7 @@ interface CustomNoticeRepository {
         squareTo: Int?,
         conditions: List<Long>?,
         metroStations: List<Long>?,
+        ids: List<Long>?,
         page: Int, pageSize: Int
     ): Page<Notice>
 
@@ -36,5 +37,6 @@ interface CustomNoticeRepository {
         squareTo: Int?,
         conditions: List<Long>?,
         metroStations: List<Long>?,
+        ids: List<Long>?,
     ): Long
 }

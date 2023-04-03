@@ -1,7 +1,9 @@
 package com.itpw.booking.metro_station
 
+import com.itpw.booking.exceptions.NotFoundException
 import com.itpw.booking.properties.YandexProperties
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -14,6 +16,10 @@ class MetroStationService @Autowired constructor(
     private val metroStationRepository: MetroStationRepository
 ) {
     private val restTemplate = RestTemplate()
+
+    fun getMetro(metroId: Long): MetroStation {
+        return metroStationRepository.findByIdOrNull(metroId) ?: throw NotFoundException("Станция метро не найдена")
+    }
 
     fun getMetroStation(longitude: Double, latitude: Double): MetroStation? {
         return try {
