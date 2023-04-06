@@ -66,4 +66,8 @@ class UserService @Autowired constructor(
         user.password = passwordEncoder.encode(request.newPassword)
         return userRepository.save(user)
     }
+
+    fun deleteUser(userId: Long) {
+        userRepository.deleteById(userId)
+    }
 }

@@ -1,9 +1,11 @@
 package com.itpw.booking.user
 
+import com.itpw.booking.util.DetailsResponse
 import com.itpw.booking.util.JwtSigner
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -60,5 +62,13 @@ class UserController @Autowired constructor(
     ): UserResponse {
         val user = userService.changePassword(authentication.name.toLong(), request)
         return UserResponse(user)
+    }
+
+    @DeleteMapping("")
+    fun deleteUser(
+        authentication: Authentication
+    ): DetailsResponse {
+        userService.deleteUser(authentication.name.toLong())
+        return DetailsResponse("Пользователь успешно удалён")
     }
 }
