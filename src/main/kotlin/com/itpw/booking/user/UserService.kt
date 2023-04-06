@@ -67,6 +67,14 @@ class UserService @Autowired constructor(
         return userRepository.save(user)
     }
 
+    fun resetPassword(request: ResetPasswordRequest) {
+        val user = userRepository.findByLogin(request.login) ?: throw NotFoundException(translator.toLocale("user_not_found"))
+        if (user.phone != request.phone.filter { it.isDigit() }) {
+            throw ForbiddenException(translator.toLocale("reset_password_wrong_phone"))
+        }
+        user.password = passwordEncoder.encode(request.newPassword)
+    }
+
     fun deleteUser(userId: Long) {
         userRepository.deleteById(userId)
     }

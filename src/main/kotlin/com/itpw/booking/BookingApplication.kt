@@ -57,7 +57,7 @@ class WebConfig @Autowired constructor(
 			.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 			.authorizeHttpRequests()
-			.requestMatchers("/media/get/**", "/user/register", "/user/login", "/condition", "/additional_feature", "/notice/view/**", "/metro_station")
+			.requestMatchers("/media/get/**", "/user/register", "/user/login", "/user/reset_password", "/condition", "/additional_feature", "/notice/view/**", "/metro_station")
 			.permitAll()
 			.anyRequest()
 			.authenticated()

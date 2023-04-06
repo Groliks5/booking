@@ -88,6 +88,16 @@ data class ChangePasswordRequest(
     val newPassword: String
 )
 
+data class ResetPasswordRequest(
+    @JsonProperty("login")
+    val login: String,
+    @JsonProperty("phone")
+    val phone: String,
+    @JsonProperty("new_password")
+    @field:Size(min = 6, max = 30, message = "{password_length_error}")
+    val newPassword: String
+)
+
 data class UserShortInfoResponse(
     @JsonProperty("name")
     val name: String,

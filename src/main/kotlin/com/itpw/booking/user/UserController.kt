@@ -2,6 +2,7 @@ package com.itpw.booking.user
 
 import com.itpw.booking.util.DetailsResponse
 import com.itpw.booking.util.JwtSigner
+import com.itpw.booking.util.Translator
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.Authentication
@@ -18,7 +19,8 @@ import java.util.logging.Logger
 @RequestMapping("/user")
 class UserController @Autowired constructor(
     private val userService: UserService,
-    private val jwtSigner: JwtSigner
+    private val jwtSigner: JwtSigner,
+    private val translator: Translator
 ) {
     @GetMapping("")
     fun getUser(
@@ -62,6 +64,14 @@ class UserController @Autowired constructor(
     ): UserResponse {
         val user = userService.changePassword(authentication.name.toLong(), request)
         return UserResponse(user)
+    }
+
+    @PutMapping("/reset_password")
+    fun resetPassword(
+        @Valid @RequestBody request: ResetPasswordRequest
+    ): DetailsResponse {
+        userService.resetPassword(request)
+        return DetailsResponse(translator.toLocale("password_reset"))
     }
 
     @DeleteMapping("")
