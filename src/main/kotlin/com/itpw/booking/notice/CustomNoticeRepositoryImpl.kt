@@ -153,7 +153,7 @@ class CustomNoticeRepositoryImpl : CustomNoticeRepository {
             ""
         } else {
             when (ordering) {
-                NoticeOrdering.DEFAULT -> " ORDER BY n.title ASC, n.id ASC"
+                NoticeOrdering.DEFAULT -> " ORDER BY n.created DESC, n.id DESC"
                 NoticeOrdering.CHIP_FIRST -> " ORDER BY n.$priceType ASC, n.id ASC"
                 NoticeOrdering.EXPENSIVE_FIRST -> " ORDER BY n.$priceType DESC, n.id ASC"
             }
