@@ -54,10 +54,26 @@ class UserService @Autowired constructor(
         user.name = request.name
         user.email = request.email
         user.phone = request.phone.filter { it.isDigit() }
-        user.whatsApp = request.whatsApp
-        user.viber = request.viber
-        user.telegram = request.telegram
-        user.vk = request.vk
+        if (request.whatsApp == null || request.whatsApp.contains("https://wa.me")) {
+            user.whatsApp = request.whatsApp
+        } else {
+            user.whatsApp = "https://wa.me/${request.whatsApp.filter { it.isDigit() }}"
+        }
+        if (request.viber == null || request.viber.contains("viber://")) {
+            user.viber = request.viber
+        } else {
+            user.viber = "viber://chat?number=%2B${request.viber.filter { it.isDigit() }}"
+        }
+        if (request.telegram == null || request.telegram.contains("https://t.me")) {
+            user.telegram = request.telegram
+        } else {
+            user.telegram = "https://t.me/${request.telegram}"
+        }
+        if (request.vk == null || request.vk.contains("https://vk.com")) {
+            user.vk = request.vk
+        } else {
+            user.vk = "https://vk.com/${request.vk}"
+        }
         return userRepository.save(user)
     }
 
