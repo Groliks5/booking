@@ -43,7 +43,7 @@ class MediaController @Autowired constructor(
         authentication: Authentication,
         @ModelAttribute request: UploadImageRequest,
     ): List<ResourceHrefResponse> {
-        Logger.getLogger("fdsf").info("fdsf")
+        Logger.getLogger("fdsf").info(request.images.map { it.originalFilename }.toString())
         val catalogs = listOf<String>()
         val response = request.images.mapIndexed { index, multipartFile ->
             val link = filesUploadService.saveFile(catalogs, "${authentication.name}_${System.currentTimeMillis()}_${index}", multipartFile, "media/get")

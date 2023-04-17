@@ -4,18 +4,27 @@ import com.itpw.booking.additional_feature.AdditionalFeatureService
 import com.itpw.booking.condition.ConditionService
 import com.itpw.booking.media.FilesUploadService
 import com.itpw.booking.notice.*
+import com.itpw.booking.properties.FileStorageProperties
 import com.itpw.booking.user.EditUserRequest
 import com.itpw.booking.user.RegisterUserRequest
 import com.itpw.booking.user.UserService
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
+import org.apache.juli.logging.Log
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.awt.image.BufferedImage
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.util.logging.Logger
+import javax.imageio.ImageIO
 
 @Service
 class ParsingService @Autowired constructor(
     private val filesUploadService: FilesUploadService,
+    private val fileStorageProperties: FileStorageProperties,
     private val userService: UserService,
     private val additionalFeatureService: AdditionalFeatureService,
     private val conditionService: ConditionService,
@@ -190,5 +199,27 @@ class ParsingService @Autowired constructor(
             .map { allowedChars.random() }
             .joinToString("")
         return str
+    }
+
+    fun normalizeImages() {
+        val mediaFolder = File(fileStorageProperties.uploadDir)
+        for ((index, file) in mediaFolder.listFiles()!!.withIndex()) {
+            if (index % 1000 == 0) {
+                Logger.getLogger("index").info(index.toString())
+            }
+            try {
+                if (file.isFile) {
+                    val image = ImageIO.read(file)
+                    if (image.width != 1350 || image.height != 900) {
+                        val fileType = file.name.split('.').last()
+                        val image = filesUploadService.makeImage(file.inputStream(), fileType)
+                        Files.copy(image, Path.of(file.toURI()), StandardCopyOption.REPLACE_EXISTING)
+                    }
+                }
+            } catch (e: Exception) {
+                Logger.getLogger("error file").info(file.path + "/" + file.name)
+                Logger.getLogger("error file").info(e.message)
+            }
+        }
     }
 }

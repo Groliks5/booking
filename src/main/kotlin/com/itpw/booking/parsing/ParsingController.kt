@@ -9,6 +9,7 @@ import org.apache.commons.csv.CSVParser
 import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVRecord
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -23,7 +24,7 @@ import kotlin.io.path.Path
 @RequestMapping("/parsing")
 class ParsingController @Autowired constructor(
     private val parsingService: ParsingService,
-    private val fileStorageProperties: FileStorageProperties
+    private val fileStorageProperties: FileStorageProperties,
 ) {
 //    @PostMapping("/notices")
 //    fun parseNotices(
@@ -36,4 +37,9 @@ class ParsingController @Autowired constructor(
 //        }
 //        printer.flush()
 //    }
+
+    @GetMapping("/normalize_image")
+    fun normalizeImage() {
+        parsingService.normalizeImages()
+    }
 }
