@@ -119,6 +119,8 @@ data class NoticeResponse(
     val selectedAdditionalFeatures: List<Long>,
     @JsonProperty("metro_station")
     val metroStation: String?,
+    @JsonProperty("metro_station_id")
+    val metroStationId: Long?,
     @JsonProperty("duration_to_metro")
     val metroDuration: Int?
 ) {
@@ -142,6 +144,7 @@ data class NoticeResponse(
         selectedConditions = notice.selectedConditions.map { it.id },
         selectedAdditionalFeatures = notice.selectedAdditionalFeatures.map { it.id },
         metroStation = notice.metro?.title,
+        metroStationId = notice.metro?.id,
         metroDuration = notice.durationToMetro
     )
 }
