@@ -190,6 +190,8 @@ data class NoticeViewResponse(
     val user: UserShortInfoResponse,
     @JsonProperty("metro_station")
     val metroStation: String?,
+    @JsonProperty("metro_station_id")
+    val metroStationId: Long?,
     @JsonProperty("duration_to_metro")
     val metroDuration: Int?
 ) {
@@ -214,6 +216,7 @@ data class NoticeViewResponse(
         selectedAdditionalFeatures = notice.selectedAdditionalFeatures.map { AdditionalFeatureResponse(it) },
         user = UserShortInfoResponse(notice.creator),
         metroStation = notice.metro?.title,
+        metroStationId = notice.metro?.id,
         metroDuration = notice.durationToMetro
     )
 }
