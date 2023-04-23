@@ -77,8 +77,8 @@ class FilesUploadService @Autowired constructor(
     fun makeImage(input: InputStream, fileType: String): ByteArrayInputStream {
         var sourceImage = ImageIO.read(input)
         val resizedImage = Scalr.resize(sourceImage, Scalr.Method.AUTOMATIC, Scalr.Mode.FIT_EXACT, 1350, 900)
-        val bluredImage = blur(resizedImage, 16)
-        if (sourceImage.height > 900 || sourceImage.width > 1350) {
+        val bluredImage = blur(resizedImage, 25)
+        if (sourceImage.height != 900 || sourceImage.width != 1350) {
             var heightCoefficient = 900f / sourceImage.height
             var widthCoefficient = 1350f / sourceImage.width
             var coefficient = min(heightCoefficient, widthCoefficient)
